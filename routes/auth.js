@@ -5,10 +5,12 @@ const router =express.Router()
 const User = mongoose.model("User")
 const bycrpt = require ('bcryptjs')
 const jwt = require('jsonwebtoken')
-const {JWT_SECRET} = require('../keys/')
+const {JWT_SECRET} = require('../keys')
+const requireLogin =require('../middleware/requireLogin')
 
 
-router.get('/',(req,res)=>{
+
+router.get('/protected',requireLogin,(req,res)=>{
     res.send("hellow")
 })
 
@@ -72,7 +74,10 @@ router.post('/signin',(req,res)=>{
         bycrpt.compare(password,savedUser.password)
         .then(doMatch=>{
             if(doMatch){
-                res.json({message:"succussfully sign in"})
+                // res.json({message:"succussfully sign in"})
+                //const token = jwt.sign({_id:savedUser._id,JWT_SECRET})
+                const token = jwt.sign({_id:savedUser._id},JWT_SECRET)
+                res.json({token})
             }
             else{
                 return res.status(422).json({error:"Ivalid email or password"})
